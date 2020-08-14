@@ -21,7 +21,7 @@ BG_IMG = pg.transform.scale2x(pg.image.load(os.path.join('imgs', 'bg.png')))
 STAT_FONT = pg.font.SysFont('comicsans', 50)
 
 
-def draw_window(win, bird, pipes, base, score):
+def draw_window(win, birds, pipes, base, score):
     win.blit(BG_IMG, (0, -100))
 
     # draws different objects onto the screen
@@ -57,7 +57,7 @@ def main_loop(genomes, config):
     score = 0
 
     run = True
-    while run:
+    while run and len(birds) > 0:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
@@ -67,9 +67,6 @@ def main_loop(genomes, config):
         if len(birds) > 0:
             if len(pipes) > 0 and birds[0].x > pipes[0].x + pipes[0].PIPE_TOP.get_width():
                 pipe_ind = 1
-            else:
-                run = False
-                break
 
         for x, bird in enumerate(birds):
             bird.move()
@@ -78,21 +75,23 @@ def main_loop(genomes, config):
             output = nets[x].activate((bird.y, abs(
                 bird.y - pipes[pipe_ind].height), abs(bird.y - pipes[pipe_ind].bottom)))
 
+            # if the tanh returns greater than 5, the specific bird will jump
             if output[0] > 0.5:
                 bird.jump()
 
         add_pipe = False
         rem = []
         for pipe in pipes:
-            for x, bird in enumerate(birds):
+            for bird in birds:
                 # checks if the bird hits the pipe
                 if pipe.collide(bird):
-                    ge[x] -= 1
-                    birds.pop(x)
-                    nets.pop(x)
-                    ge.pop(x)
+                    ge[birds.index(bird)].fitness -= 1
+                    nets.pop(birds.index(bird))
+                    ge.pop(birds.index(bird))
+                    birds.pop(birds.index(bird))
 
-                if not pipe.passed and pipe.x < birds[0].x:
+                # checks if pipe is passed or not
+                if not pipe.passed and pipe.x < bird.x:
                     pipe.passed = True
                     add_pipe = True
 
@@ -126,12 +125,14 @@ def main_loop(genomes, config):
         base.move()
 
 
+# runs program using the config path of the neural net
 def run(con_path):
     config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
                                 neat.DefaultSpeciesSet, neat.DefaultStagnation, con_path)
 
     pop = neat.Population(config)
 
+    # adds a stat for each generation and its specific species
     pop.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     pop.add_reporter(stats)

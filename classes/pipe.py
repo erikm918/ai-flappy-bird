@@ -1,9 +1,6 @@
 import os
-import time
-import random
 
 import pygame as pg
-import neat
 
 PIPE_IMG = pg.transform.scale2x(
     pg.image.load(os.path.join('imgs', 'pipe.png')))
@@ -11,7 +8,7 @@ PIPE_IMG = pg.transform.scale2x(
 
 class Pipe:
     GAP = 200
-    VEL = 5
+    VEL = 8
 
     def __init__(self, x):
         self.x = x
@@ -25,6 +22,7 @@ class Pipe:
         self.passed = False
         self.set_height()
 
+    # sets height of both pipes using the gap as a point of reference
     def set_height(self):
         self.height = random.randrange(40, 400)
         self.top = self.height - self.PIPE_TOP.get_height()
@@ -37,11 +35,13 @@ class Pipe:
         win.blit(self.PIPE_TOP, (self.x, self.top))
         win.blit(self.PIPE_BOTTOM, (self.x, self.bottom))
 
+    # checks for collision based on overlapping of masks
     def collide(self, bird):
         bird_mask = bird.get_mask()
         top_mask = pg.mask.from_surface(self.PIPE_TOP)
         bottom_mask = pg.mask.from_surface(self.PIPE_BOTTOM)
 
+        # offsets of the masks so collisions work well
         top_offset = (self.x - bird.x, self.top - round(bird.y))
         bottom_offset = (self.x - bird.x, self.bottom - round(bird.y))
 

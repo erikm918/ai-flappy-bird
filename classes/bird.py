@@ -1,9 +1,6 @@
 import os
-import time
-import random
 
 import pygame as pg
-import neat
 
 BIRD_IMGS = [pg.transform.scale2x(pg.image.load(os.path.join('imgs', 'bird1.png'))), pg.transform.scale2x(
     pg.image.load(os.path.join('imgs', 'bird2.png'))), pg.transform.scale2x(pg.image.load(os.path.join('imgs', 'bird3.png')))]
@@ -48,12 +45,17 @@ class Bird:
             if self.tilt < self.MAX_ROTATION:
                 self.tilt = self.MAX_ROTATION
             else:
-                if self.tilot > -90:
+                if self.tilt > -90:
                     self.tilt -= self.ROT_VEL
 
     def draw(self, win):
         self.img_count += 1
 
+        ''' 
+        rotates through the birds images depending on which frame it is on
+        as it hits the third image it rotates back through to the first and
+        repeats the cycle as long as the game continues
+        '''
         if self.img_count < self.ANIMATION_TIME:
             self.img = self.IMGS[0]
         elif self.img_count < self.ANIMATION_TIME * 2:
@@ -66,6 +68,7 @@ class Bird:
             self.img = self.IMGS[0]
             self.img_count = 0
 
+        # sets specific image if the rotation reaches a certain point
         if self.tilt <= -80:
             self.img = self.IMGS[1]
             self.img_count = self.ANIMATION_TIME * 2
