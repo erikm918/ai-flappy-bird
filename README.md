@@ -11,7 +11,3 @@ NeuroEvolution of Augmenting Topologies (NEAT) is an evolution model that is bui
 The network begins by simply taking input from the y-coodinate of the bird, as well as the distance between the bird and the top and bottom pipes. With this imformation it must decide whether to jump or not. The activation function used is a Sigmoid Function where if the output is >=0.5, the AI will jump. 
 
 ---
-
-## Current Issues
-
-Currently when attempting to run the program, you see a black screen for a second before this screen disappears. The training does not take place within this time frame, as seen with the results shown in the terminal not showing any increase in fitness.
